@@ -9,7 +9,7 @@ The homepage is extremely visual and engaging. It is important to have next comp
 * daily quote which inspires other drivers. lets generate a list of 15 quotes which would rotate daily.
 * past and upcoming competitions. list of events are in competitions.csv. user should see historic events separated from upcoming events. upcoming events are first in the list.
 
-Illustrations for the page should be taken from resources folder. profile.jpg should be the main one.
+Illustrations for the page should be taken from resources folder. driver.png should be the main one.
 
 The homepage is authentic and has something which is specific to Rocco 57. Get inspiration from landonorris.com.
 
