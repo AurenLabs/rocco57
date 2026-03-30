@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="et">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rocco57 | Rocco Kübarsepp</title>
+    <meta
+      name="description"
+      content="Rocco Kübarsepa ametlik koduleht: saavutused, kalender, sponsorid ja Rocco 57 maailm."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="topbar">
+        <a class="brand" href="#avaleht" aria-label="Rocco57 avaleht">
+          <span class="brand-mark">57</span>
+          <span class="brand-copy">
+            <strong>ROCCO57</strong>
+            <span>ATV noorsportlane</span>
+          </span>
+        </a>
+        <nav class="topnav" aria-label="Põhinavigeerimine">
+          <a href="#saavutused">Saavutused</a>
+          <a href="#kalender">Kalender</a>
+          <a href="#sponsorid">Sponsorid</a>
+          <a href="#galerii">Galerii</a>
+        </nav>
+      </header>
+
+      <main id="avaleht">
+        <section class="hero">
+          <div class="hero-copy">
+            <p class="eyebrow">Rocco Kübarsepp · võistlusnumber 57</p>
+            <h1>
+              Noore sõitja
+              <span>päris rada.</span>
+            </h1>
+            <p class="hero-text">
+              Rocco57 on koht, kus fännid saavad elada kaasa ja sponsorid näevad,
+              kuidas töö, julgus ja kiirus päriselt tulemuseks muutuvad.
+            </p>
+
+            <div class="hero-panels">
+              <article class="panel quote-panel">
+                <p class="panel-label">Tänane tsitaat</p>
+                <blockquote id="daily-quote">
+                  Iga stardipuu on uus võimalus näidata, mida olen õppinud.
+                </blockquote>
+              </article>
+
+              <article class="panel next-race-panel">
+                <p class="panel-label">Järgmine start</p>
+                <div id="next-race">
+                  <strong>Kalender laadib...</strong>
+                  <span>Võistlusinfo ilmub siia automaatselt.</span>
+                </div>
+              </article>
+            </div>
+
+            <div class="hero-stats" id="hero-stats">
+              <article>
+                <span class="stat-value">57</span>
+                <span class="stat-label">Võistlusnumber</span>
+              </article>
+              <article>
+                <span class="stat-value" id="wins-count">0</span>
+                <span class="stat-label">Võitu</span>
+              </article>
+              <article>
+                <span class="stat-value" id="podiums-count">0</span>
+                <span class="stat-label">Poodiumit</span>
+              </article>
+            </div>
+          </div>
+
+          <div class="hero-visual">
+            <div class="number-stack" aria-hidden="true">
+              <span>57</span>
+              <span>57</span>
+              <span>57</span>
+            </div>
+            <figure class="hero-card hero-card-main">
+              <img
+                src="resources/profile.jpg"
+                alt="Rocco Kubarsepp võistlusmasinal numbriga 57"
+              />
+            </figure>
+            <figure class="hero-card hero-card-action">
+              <img
+                src="resources/657529696_122231265548269913_2121353496567135542_n.jpg"
+                alt="Rocco Kubarsepp hüppel metsarajal"
+              />
+            </figure>
+          </div>
+        </section>
+
+        <section class="story-ribbon">
+          <p>Kiirus · tehnika · järjepidevus</p>
+          <p>Rocco 57</p>
+          <p>Fännidele nähtav. Sponsoritele tõestatav.</p>
+        </section>
+
+        <section class="section-grid" id="saavutused">
+          <div class="section-heading">
+            <p class="eyebrow">Senine töö</p>
+            <h2>Saavutused, mis räägivad ise.</h2>
+          </div>
+          <div class="achievement-layout">
+            <article class="section-card achievements-card">
+              <div class="card-head">
+                <h3>Karikad ja tiitlid</h3>
+                <span class="track-pill">Alates 2023</span>
+              </div>
+              <div class="achievement-list" id="achievements-list">
+                <p class="loading">Saavutused laadivad...</p>
+              </div>
+            </article>
+
+            <aside class="section-card support-card">
+              <div class="card-head">
+                <h3>Miks Rocco57?</h3>
+              </div>
+              <p>
+                See projekt ei ole lihtsalt pildigalerii. See on kasvava sportlase
+                visiitkaart, kus iga tulemus, iga start ja iga partner saab selge
+                koha.
+              </p>
+              <ul class="support-points">
+                <li>Selge ülevaade hooajast ja arengust</li>
+                <li>Autentne visuaal päris rajalt</li>
+                <li>Sponsori nähtavus noore sportlase kõrval</li>
+              </ul>
+            </aside>
+          </div>
+        </section>
+
+        <section class="section-grid" id="kalender">
+          <div class="section-heading">
+            <p class="eyebrow">Stardid ja tulemused</p>
+            <h2>Kalender hoiab hooaja liikumises.</h2>
+          </div>
+          <div class="calendar-layout">
+            <article class="section-card calendar-card">
+              <div class="card-head">
+                <h3>Ees ootavad võistlused</h3>
+                <span class="track-pill">Järgmised stardid eespool</span>
+              </div>
+              <div class="event-list" id="upcoming-events">
+                <p class="loading">Kalender laadib...</p>
+              </div>
+            </article>
+
+            <article class="section-card calendar-card subdued">
+              <div class="card-head">
+                <h3>Varasemad stardid</h3>
+                <span class="track-pill">Läbitud etapid</span>
+              </div>
+              <div class="event-list" id="past-events">
+                <p class="loading">Kalender laadib...</p>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="section-grid sponsor-section" id="sponsorid">
+          <div class="section-heading">
+            <p class="eyebrow">Koostöö</p>
+            <h2>Partnerid, kes aitavad tempot hoida.</h2>
+          </div>
+          <article class="section-card sponsor-card">
+            <div class="sponsor-copy">
+              <p class="panel-label">Toetajad</p>
+              <h3>Rocco57 kasvab koos tugevate partneritega.</h3>
+              <p>
+                Sponsorid ei ole siin kõrvalmärkus. Nad on osa teekonnast,
+                nähtavad avalehel ja seotud iga järgmise stardiga.
+              </p>
+            </div>
+            <div class="sponsor-logos" id="sponsor-logos">
+              <img src="resources/sponsors/redmoto.png" alt="Redmoto logo" />
+            </div>
+          </article>
+        </section>
+
+        <section class="section-grid" id="galerii">
+          <div class="section-heading">
+            <p class="eyebrow">Rajal nähtud</p>
+            <h2>Pildid, kus Rocco57 päriselt elab.</h2>
+          </div>
+          <div class="gallery-strip">
+            <figure class="gallery-card tall">
+              <img
+                src="resources/549637276_122208911978269913_7940834968638907508_n.jpg"
+                alt="Rocco Kubarsepp rajal"
+              />
+            </figure>
+            <figure class="gallery-card wide">
+              <img
+                src="resources/540625345_122207076116269913_8800869433014192462_n.jpg"
+                alt="Rocco Kubarsepp võistlussituatsioonis"
+              />
+            </figure>
+            <figure class="gallery-card">
+              <img
+                src="resources/545236798_122208022130269913_7035186508677973953_n.jpg"
+                alt="Rocco Kubarsepp kurvis"
+              />
+            </figure>
+            <figure class="gallery-card">
+              <img
+                src="resources/547570001_122208911996269913_2900672912914734351_n.jpg"
+                alt="Rocco Kubarsepp võistlusmomendis"
+              />
+            </figure>
+            <figure class="gallery-card wide">
+              <img
+                src="resources/588439860_122217228692269913_575044232111382024_n.jpg"
+                alt="Rocco Kubarsepp hüppel"
+              />
+            </figure>
+            <figure class="gallery-card">
+              <img
+                src="resources/495377754_122189442656269913_5474387116729569408_n.jpg"
+                alt="Rocco Kubarsepp rajal tegevuses"
+              />
+            </figure>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
