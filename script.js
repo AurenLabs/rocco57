@@ -38,6 +38,9 @@ const quotes = [
   "57 ei ole ainult number, see on suhtumine rajal.",
 ];
 
+const competitionSheetUrl =
+  "https://docs.google.com/spreadsheets/d/1nmnAj8D_vhykjlBHXUFyO_xIr3MjZB6xTQ3YndTFD6I/edit?usp=sharing";
+
 const achievementsList = document.querySelector("#achievements-list");
 const upcomingEvents = document.querySelector("#upcoming-events");
 const pastEvents = document.querySelector("#past-events");
@@ -178,15 +181,113 @@ function parseAchievementsMarkdown(markdown) {
     .filter(Boolean);
 }
 
+function createGoogleSheetCsvUrl(sheetUrl) {
+  try {
+    const url = new URL(sheetUrl);
+    const match = url.pathname.match(/\/spreadsheets\/d\/([^/]+)/);
+
+    if (!match) {
+      return null;
+    }
+
+    const gid = url.searchParams.get("gid") || "0";
+    return `https://docs.google.com/spreadsheets/d/${match[1]}/gviz/tq?tqx=out:csv&gid=${gid}`;
+  } catch {
+    return null;
+  }
+}
+
+function parseCsvRows(csv) {
+  const rows = [];
+  let row = [];
+  let cell = "";
+  let insideQuotes = false;
+
+  for (let index = 0; index < csv.length; index += 1) {
+    const char = csv[index];
+    const nextChar = csv[index + 1];
+
+    if (char === '"') {
+      if (insideQuotes && nextChar === '"') {
+        cell += '"';
+        index += 1;
+      } else {
+        insideQuotes = !insideQuotes;
+      }
+      continue;
+    }
+
+    if (char === "," && !insideQuotes) {
+      row.push(cell.trim());
+      cell = "";
+      continue;
+    }
+
+    if ((char === "\n" || char === "\r") && !insideQuotes) {
+      if (char === "\r" && nextChar === "\n") {
+        index += 1;
+      }
+
+      row.push(cell.trim());
+      if (row.some(Boolean)) {
+        rows.push(row);
+      }
+
+      row = [];
+      cell = "";
+      continue;
+    }
+
+    cell += char;
+  }
+
+  row.push(cell.trim());
+  if (row.some(Boolean)) {
+    rows.push(row);
+  }
+
+  return rows;
+}
+
+function normalizeHeader(header) {
+  return header.toLowerCase().trim().replace(/[^\p{L}\p{N}]+/gu, "");
+}
+
+function getHeaderIndex(headers, aliases) {
+  return headers.findIndex((header) => aliases.includes(header));
+}
+
 function parseCompetitionCsv(csv) {
-  return csv
-    .trim()
-    .split("\n")
-    .slice(1)
-    .map((line) => {
-      const [date, location, result = ""] = line.split(",");
-      return { date: date.trim(), location: location.trim(), result: result.trim() };
-    })
+  const rows = parseCsvRows(csv);
+  if (!rows.length) {
+    return [];
+  }
+
+  const [headerRow, ...dataRows] = rows;
+  const headers = headerRow.map(normalizeHeader);
+  const dateIndex = getHeaderIndex(headers, ["date", "kuupaev"]);
+  const locationIndex = getHeaderIndex(headers, [
+    "location",
+    "koht",
+    "rada",
+    "track",
+    "venue",
+    "competition",
+    "event",
+    "voistlus",
+  ]);
+  const resultIndex = getHeaderIndex(headers, ["result", "tulemus"]);
+
+  if (dateIndex === -1 || locationIndex === -1) {
+    return [];
+  }
+
+  return dataRows
+    .map((row) => ({
+      date: row[dateIndex]?.trim() || "",
+      location: row[locationIndex]?.trim() || "",
+      result: resultIndex === -1 ? "" : row[resultIndex]?.trim() || "",
+    }))
     .filter((entry) => entry.date && entry.location);
 }
 
@@ -202,18 +303,38 @@ async function loadTextFile(path, fallback) {
   }
 }
 
+async function loadCompetitionSource(fallback) {
+  const sheetCsvUrl = createGoogleSheetCsvUrl(competitionSheetUrl);
+
+  if (sheetCsvUrl) {
+    try {
+      const response = await fetch(sheetCsvUrl);
+      if (!response.ok) {
+        throw new Error("Failed to load Google Sheet");
+      }
+      const source = await response.text();
+      if (parseCompetitionCsv(source).length) {
+        return source;
+      }
+    } catch {
+      // Fall back to the local CSV when the shared sheet is unavailable.
+    }
+  }
+
+  return loadTextFile("competitions.csv", fallback);
+}
+
 async function init() {
   dailyQuote.textContent = getDailyQuote();
 
+  const competitionFallback = [
+    "date,location,result",
+    ...fallbackEvents.map((event) => `${event.date},${event.location},${event.result}`),
+  ].join("\n");
+
   const [achievementSource, competitionSource] = await Promise.all([
     loadTextFile("saavutused.md", fallbackAchievements.join("\n")),
-    loadTextFile(
-      "competitions.csv",
-      [
-        "date,location,result",
-        ...fallbackEvents.map((event) => `${event.date},${event.location},${event.result}`),
-      ].join("\n")
-    ),
+    loadCompetitionSource(competitionFallback),
   ]);
 
   renderAchievements(parseAchievementsMarkdown(achievementSource));
