@@ -1,11 +1,46 @@
 const fallbackAchievements = [
-  "2023 Eesti Noorte Karikasari – Motohobi ATV Hiinakas 1. koht",
-  "2023 Äksi Motocross Cup – Motohobi ATV Hiinakas 1. koht",
-  "2024 Eesti Noorte Karikasari – ATV Lapsed Junior 1. koht",
-  "2024 Äksi Motocross Cup – ATV Lapsed Junior 1. koht",
-  "2025 Äksi Motocross Cup – ATV Lapsed automaat 1. koht",
-  "2025 Eesti Noorte Karikasari – ATV Lapsed automaat 1. koht",
-  "2025 EMV – ATV Lapsed automaat 2. koht",
+  {
+    season: "2023",
+    series: "Eesti Noorte Karikasari",
+    category: "Motohobi ATV Hiinakas",
+    result: "1. koht",
+  },
+  {
+    season: "2023",
+    series: "Äksi Motocross Cup",
+    category: "Motohobi ATV Hiinakas",
+    result: "1. koht",
+  },
+  {
+    season: "2024",
+    series: "Eesti Noorte Karikasari",
+    category: "ATV Lapsed Junior",
+    result: "1. koht",
+  },
+  {
+    season: "2024",
+    series: "Äksi Motocross Cup",
+    category: "ATV Lapsed Junior",
+    result: "1. koht",
+  },
+  {
+    season: "2025",
+    series: "Äksi Motocross Cup",
+    category: "ATV Lapsed automaat",
+    result: "1. koht",
+  },
+  {
+    season: "2025",
+    series: "Eesti Noorte Karikasari",
+    category: "ATV Lapsed automaat",
+    result: "1. koht",
+  },
+  {
+    season: "2025",
+    series: "EMV",
+    category: "ATV Lapsed automaat",
+    result: "2. koht",
+  },
 ];
 
 const fallbackEvents = [
@@ -38,12 +73,32 @@ const quotes = [
   "57 ei ole ainult number, see on suhtumine rajal.",
 ];
 
+const driveGalleryImages = [
+  {
+    id: "1Ps6yc-co9CYHFYMUj76o0Z97Xnk3GK0G",
+    name: "682052538_122235000050269913_2020579149367573356_n.jpg",
+    alt: "Rocco Kubarsepp Google Drive galeriipilt",
+    className: "wide",
+  },
+  {
+    id: "1oDZEuwrwaOuR-Dj-xuAvbYYCw2KCJdIT",
+    name: "682571011_122235000068269913_530570146186727876_n.jpg",
+    alt: "Rocco Kubarsepp Google Drive galeriipilt",
+    className: "tall",
+  },
+];
+
 const competitionSheetUrl =
   "https://docs.google.com/spreadsheets/d/1nmnAj8D_vhykjlBHXUFyO_xIr3MjZB6xTQ3YndTFD6I/edit?usp=sharing";
+const achievementsSheetUrl =
+  "https://docs.google.com/spreadsheets/d/1hm8hq5-nRxcRfXC62z9driXru1cAWz6Ic0DVHdjxz-Y/edit?usp=sharing";
 
 const achievementsList = document.querySelector("#achievements-list");
+const todayCard = document.querySelector("#today-card");
+const todayEvents = document.querySelector("#today-events");
 const upcomingEvents = document.querySelector("#upcoming-events");
 const pastEvents = document.querySelector("#past-events");
+const galleryStrip = document.querySelector("#gallery-strip");
 const dailyQuote = document.querySelector("#daily-quote");
 const nextRace = document.querySelector("#next-race");
 const winsCount = document.querySelector("#wins-count");
@@ -84,17 +139,49 @@ function getAchievementBadge(line) {
   return { text: "Tulemus", className: "silver" };
 }
 
-function parseAchievementLine(line) {
-  const cleaned = line.replace(/^[-*]\s*/, "").replace(/^[^\w\d]+/u, "").trim();
-  const badge = getAchievementBadge(cleaned);
-  const parts = cleaned.split("–").map((part) => part.trim());
-  const season = parts[0] || "Tulemus";
-  const series = parts[1] || cleaned;
-  return { cleaned, season, series, badge };
+function buildAchievementLine(item) {
+  return [item.season, item.series, item.category, item.result].filter(Boolean).join(" – ");
+}
+
+function getDriveImageUrl(fileId) {
+  return `https://lh3.googleusercontent.com/d/${fileId}=w1600`;
+}
+
+function getDriveFileUrl(fileId) {
+  return `https://drive.google.com/file/d/${fileId}/view?usp=drivesdk`;
+}
+
+function renderDriveGalleryImages() {
+  if (!galleryStrip || !driveGalleryImages.length) {
+    return;
+  }
+
+  const galleryMarkup = driveGalleryImages
+    .map(
+      (image, index) => `
+        <figure class="gallery-card ${image.className || ""} reveal" style="animation-delay: ${index * 90}ms">
+          <a href="${getDriveFileUrl(image.id)}" target="_blank" rel="noreferrer">
+            <img src="${getDriveImageUrl(image.id)}" alt="${image.alt}" loading="lazy" />
+          </a>
+        </figure>
+      `
+    )
+    .join("");
+
+  galleryStrip.insertAdjacentHTML("beforeend", galleryMarkup);
 }
 
 function renderAchievements(items) {
-  const parsedItems = items.map(parseAchievementLine);
+  const parsedItems = items.map((item) => {
+    const cleaned = buildAchievementLine(item);
+    const badge = getAchievementBadge(cleaned);
+    return {
+      cleaned,
+      season: item.season || "Tulemus",
+      series: [item.series, item.category].filter(Boolean).join(" – ") || cleaned,
+      badge,
+    };
+  });
   achievementsList.innerHTML = parsedItems
     .map(
       ({ cleaned, season, series, badge }, index) => `
@@ -122,11 +209,30 @@ function renderAchievements(items) {
 function eventStatus(event) {
   const today = new Date();
   const now = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0);
-  return parseDate(event.date) >= now ? "upcoming" : "past";
+  const parsedEventDate = parseDate(event.date);
+  const eventDate = new Date(
+    parsedEventDate.getFullYear(),
+    parsedEventDate.getMonth(),
+    parsedEventDate.getDate(),
+    0,
+    0,
+    0
+  );
+
+  if (eventDate.getTime() === now.getTime()) {
+    return "today";
+  }
+
+  return eventDate > now ? "upcoming" : "past";
 }
 
 function renderEventGroup(container, items, kind) {
   if (!items.length) {
+    if (kind === "today") {
+      container.innerHTML = `<p class="loading">Täna võistlust kalendris ei ole.</p>`;
+      return;
+    }
+
     container.innerHTML = `<p class="loading">${kind === "upcoming" ? "Uusi starte pole veel lisatud." : "Varasemaid starditulemusi pole veel lisatud."}</p>`;
     return;
   }
@@ -140,9 +246,9 @@ function renderEventGroup(container, items, kind) {
               <div class="event-title">${event.location}</div>
               <div class="event-meta">${formatDate(event.date)}</div>
             </div>
-            <span class="event-tag">${kind === "upcoming" ? "Tulekul" : "Toimunud"}</span>
+            <span class="event-tag">${kind === "today" ? "Täna" : kind === "upcoming" ? "Tulekul" : "Toimunud"}</span>
           </div>
-          <div class="event-meta">${event.result || (kind === "upcoming" ? "Stardis peagi." : "Tulemus lisamisel.")}</div>
+          <div class="event-meta">${event.result ? `Koht: ${event.result}` : kind === "today" ? "Stardis täna." : kind === "upcoming" ? "Stardis peagi." : "Tulemus lisamisel."}</div>
         </article>
       `
     )
@@ -151,13 +257,16 @@ function renderEventGroup(container, items, kind) {
 
 function renderEvents(items) {
   const sorted = [...items].sort((a, b) => parseDate(a.date) - parseDate(b.date));
+  const today = sorted.filter((event) => eventStatus(event) === "today");
   const upcoming = sorted.filter((event) => eventStatus(event) === "upcoming");
   const past = sorted.filter((event) => eventStatus(event) === "past").reverse();
 
+  todayCard.hidden = !today.length;
+  renderEventGroup(todayEvents, today, "today");
   renderEventGroup(upcomingEvents, upcoming, "upcoming");
   renderEventGroup(pastEvents, past, "past");
 
-  const next = upcoming[0];
+  const next = today[0] || upcoming[0];
   if (!next) {
     nextRace.innerHTML = `
       <strong>Uus hooaeg on silmapiiril</strong>
@@ -168,17 +277,8 @@ function renderEvents(items) {
 
   nextRace.innerHTML = `
     <strong>${next.location}</strong>
-    <span>${formatDate(next.date)}</span>
+    <span>${today.length ? `Täna, ${formatDate(next.date)}` : formatDate(next.date)}</span>
   `;
-}
-
-function parseAchievementsMarkdown(markdown) {
-  return markdown
-    .split("\n")
-    .map((line) => line.trim())
-    .filter((line) => line && !line.startsWith("#") && !line.endsWith(":"))
-    .map((line) => line.replace(/^[^\d]+(?=\d)/u, "").trim())
-    .filter(Boolean);
 }
 
 function createGoogleSheetCsvUrl(sheetUrl) {
@@ -257,12 +357,92 @@ function getHeaderIndex(headers, aliases) {
   return headers.findIndex((header) => aliases.includes(header));
 }
 
+function isValidDateString(dateString) {
+  if (!/^\d{2}\.\d{2}\.\d{4}$/.test(dateString)) {
+    return false;
+  }
+
+  const [day, month, year] = dateString.split(".").map(Number);
+  const parsed = new Date(year, month - 1, day, 12, 0, 0);
+
+  return (
+    parsed.getFullYear() === year &&
+    parsed.getMonth() === month - 1 &&
+    parsed.getDate() === day
+  );
+}
+
+function parseCompetitionRow(row, dateIndex, locationIndex, resultIndex) {
+  const date = row[dateIndex]?.trim() || "";
+  const location = row[locationIndex]?.trim() || "";
+  const result = resultIndex === -1 ? "" : row[resultIndex]?.trim() || "";
+
+  if (!isValidDateString(date) || !location) {
+    return null;
+  }
+
+  return { date, location, result };
+}
+
+function parseBundledCompetitionRow(row) {
+  const dateCell = row[0]?.trim() || "";
+  const locationCell = row[1]?.trim() || "";
+  const resultCell = row[2]?.trim() || "";
+
+  if (!/^date\b/i.test(dateCell) || !/^location\b/i.test(locationCell)) {
+    return [];
+  }
+
+  const dates = dateCell.replace(/^date\b\s*/i, "").trim().split(/\s+/).filter(Boolean);
+  const locations = locationCell
+    .replace(/^location\b\s*/i, "")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  const results = resultCell.replace(/^result\b\s*/i, "").trim();
+  const count = Math.min(dates.length, locations.length);
+
+  return Array.from({ length: count }, (_, index) => ({
+    date: dates[index],
+    location: locations[index],
+    result: results ? results : "",
+  })).filter((entry) => isValidDateString(entry.date) && entry.location);
+}
+
+function parseAchievementsCsv(csv) {
+  const rows = parseCsvRows(csv);
+  if (!rows.length) {
+    return [];
+  }
+
+  const [headerRow, ...dataRows] = rows;
+  const headers = headerRow.map(normalizeHeader);
+  const seasonIndex = getHeaderIndex(headers, ["season", "year", "hooaeg"]);
+  const seriesIndex = getHeaderIndex(headers, ["series", "karikasari", "sarja", "voistlus"]);
+  const categoryIndex = getHeaderIndex(headers, ["category", "class", "klass", "kategooria"]);
+  const resultIndex = getHeaderIndex(headers, ["result", "tulemus", "koht"]);
+
+  if (seasonIndex === -1 || seriesIndex === -1 || resultIndex === -1) {
+    return [];
+  }
+
+  return dataRows
+    .map((row) => ({
+      season: row[seasonIndex]?.trim() || "",
+      series: row[seriesIndex]?.trim() || "",
+      category: categoryIndex === -1 ? "" : row[categoryIndex]?.trim() || "",
+      result: row[resultIndex]?.trim() || "",
+    }))
+    .filter((entry) => entry.season && entry.series && entry.result);
+}
+
 function parseCompetitionCsv(csv) {
   const rows = parseCsvRows(csv);
   if (!rows.length) {
     return [];
   }
 
+  const bundledEntries = parseBundledCompetitionRow(rows[0]);
   const [headerRow, ...dataRows] = rows;
   const headers = headerRow.map(normalizeHeader);
   const dateIndex = getHeaderIndex(headers, ["date", "kuupaev"]);
@@ -278,17 +458,17 @@ function parseCompetitionCsv(csv) {
   ]);
   const resultIndex = getHeaderIndex(headers, ["result", "tulemus"]);
 
-  if (dateIndex === -1 || locationIndex === -1) {
-    return [];
+  if (dateIndex !== -1 && locationIndex !== -1) {
+    return dataRows
+      .map((row) => parseCompetitionRow(row, dateIndex, locationIndex, resultIndex))
+      .filter(Boolean);
   }
 
-  return dataRows
-    .map((row) => ({
-      date: row[dateIndex]?.trim() || "",
-      location: row[locationIndex]?.trim() || "",
-      result: resultIndex === -1 ? "" : row[resultIndex]?.trim() || "",
-    }))
-    .filter((entry) => entry.date && entry.location);
+  const positionalEntries = rows
+    .map((row) => parseCompetitionRow(row, 0, 1, 2))
+    .filter(Boolean);
+
+  return [...bundledEntries, ...positionalEntries];
 }
 
 async function loadTextFile(path, fallback) {
@@ -303,8 +483,8 @@ async function loadTextFile(path, fallback) {
   }
 }
 
-async function loadCompetitionSource(fallback) {
-  const sheetCsvUrl = createGoogleSheetCsvUrl(competitionSheetUrl);
+async function loadSheetBackedCsvSource(sheetUrl, localPath, fallback, parser) {
+  const sheetCsvUrl = createGoogleSheetCsvUrl(sheetUrl);
 
   if (sheetCsvUrl) {
     try {
@@ -313,7 +493,7 @@ async function loadCompetitionSource(fallback) {
         throw new Error("Failed to load Google Sheet");
       }
       const source = await response.text();
-      if (parseCompetitionCsv(source).length) {
+      if (parser(source).length) {
         return source;
       }
     } catch {
@@ -321,11 +501,19 @@ async function loadCompetitionSource(fallback) {
     }
   }
 
-  return loadTextFile("competitions.csv", fallback);
+  return loadTextFile(localPath, fallback);
 }
 
 async function init() {
   dailyQuote.textContent = getDailyQuote();
+  renderDriveGalleryImages();
+
+  const achievementsFallback = [
+    "season,series,category,result",
+    ...fallbackAchievements.map(
+      (item) => `${item.season},${item.series},${item.category},${item.result}`
+    ),
+  ].join("\n");
 
   const competitionFallback = [
     "date,location,result",
@@ -333,11 +521,21 @@ async function init() {
   ].join("\n");
 
   const [achievementSource, competitionSource] = await Promise.all([
-    loadTextFile("saavutused.md", fallbackAchievements.join("\n")),
-    loadCompetitionSource(competitionFallback),
+    loadSheetBackedCsvSource(
+      achievementsSheetUrl,
+      "saavutused.csv",
+      achievementsFallback,
+      parseAchievementsCsv
+    ),
+    loadSheetBackedCsvSource(
+      competitionSheetUrl,
+      "competitions.csv",
+      competitionFallback,
+      parseCompetitionCsv
+    ),
   ]);
 
-  renderAchievements(parseAchievementsMarkdown(achievementSource));
+  renderAchievements(parseAchievementsCsv(achievementSource));
   renderEvents(parseCompetitionCsv(competitionSource));
 }
 

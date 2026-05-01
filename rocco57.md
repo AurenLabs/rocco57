@@ -4,7 +4,7 @@ This is the directory for Rocco Kübarsepp homepage. Everything is in Estonian. 
 Rocco is a taleted quadraces. His competition number is 57. Rocco's homepage is all about communicating with fans and showing to sponsors what he has achieved.
 
 The homepage is extremely visual and engaging. It is important to have next components on the page:
-* list of achievements which could be found from saavutused.md
+* list of achievements which could be found from saavutused.csv
 * list of sponsors. sponsor logos are under resources/sponsors
 * daily quote which inspires other drivers. lets generate a list of 15 quotes which would rotate daily.
 * past and upcoming competitions. list of events are in competitions.csv. user should see historic events separated from upcoming events. upcoming events are first in the list.

@@ -147,6 +147,16 @@
             <h2>Kalender hoiab hooaja liikumises.</h2>
           </div>
           <div class="calendar-layout">
+            <article class="section-card calendar-card today-card" id="today-card" hidden>
+              <div class="card-head">
+                <h3>Täna rajal</h3>
+                <span class="track-pill">Tänane võistlus</span>
+              </div>
+              <div class="event-list" id="today-events">
+                <p class="loading">Tänane info laadib...</p>
+              </div>
+            </article>
+
             <article class="section-card calendar-card">
               <div class="card-head">
                 <h3>Ees ootavad võistlused</h3>
@@ -194,7 +204,7 @@
             <p class="eyebrow">Rajal nähtud</p>
             <h2>Pildid, kus Rocco57 päriselt elab.</h2>
           </div>
-          <div class="gallery-strip">
+          <div class="gallery-strip" id="gallery-strip">
             <figure class="gallery-card tall">
               <img
                 src="resources/549637276_122208911978269913_7940834968638907508_n.jpg"
